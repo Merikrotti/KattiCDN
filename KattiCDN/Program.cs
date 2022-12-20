@@ -26,7 +26,7 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer(options =>
         ValidateIssuer = true,
         ValidAudiences = builder.Configuration.GetSection("Authentication:Schemes:Bearer:ValidAudiences").Get<List<string>>(),
         ValidIssuer = builder.Configuration["Authentication:Schemes:Bearer:ValidIssuer"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Schemes:Bearer:Token"] ?? throw new ArgumentNullException("Configuration token should now be null.")))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Schemes:Bearer:Token"] ?? throw new ArgumentNullException("Configuration token should not be null.")))
     };
 });
 

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using KattiCDN.Services.PasswordService;
 using Microsoft.AspNetCore.Authorization;
 using KattiCDN.Services.TokenService;
+using System.Security.Claims;
 
 namespace KattiCDN.Controllers
 {
@@ -79,8 +80,42 @@ namespace KattiCDN.Controllers
                 return Unauthorized();
 
             var accesstoken = _tokenService.CreateAccessToken(user.username, user.id);
+            var refreshtoken = await _tokenService.CreateRefreshToken(user.id);
 
-            return Ok(new { accessToken = accesstoken });
+            return Ok(new { accessToken = accesstoken, refreshToken = refreshtoken });
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh(RefreshRequest request)
+        {
+            if (!ModelState.IsValid || request.refreshToken == null)
+                return BadRequest();
+
+            int user_id = await _tokenService.ValidateRefreshToken(request.refreshToken);
+            if (user_id == -1)
+                return Unauthorized();
+
+            var user = await _logindb.GetUserByIdAsync(user_id);
+            if (user?.username == null)
+                throw new ArgumentNullException("Database error getting user by id, there should not be a null");
+
+            var accesstoken = _tokenService.CreateAccessToken(user.username, user_id);
+            var refreshtoken = await _tokenService.CreateRefreshToken(user_id);
+
+            return Ok(new { accessToken = accesstoken, refreshToken = refreshtoken });
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var raw_id = HttpContext.User.FindFirstValue("uid");
+            if (!int.TryParse(raw_id, out int user_id))
+                return Unauthorized();
+
+            await _tokenService.DeleteRefreshTokens(user_id);
+
+            return Ok();
         }
 
         [Authorize]

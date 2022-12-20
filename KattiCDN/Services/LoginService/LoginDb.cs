@@ -39,5 +39,17 @@ namespace KattiCDN.Services.LoginService
             if (user == null) return null;
             return user;
         }
+
+        /// <summary>
+        /// Find user with user id from database
+        /// </summary>
+        /// <param name="user_id">id of user</param>
+        /// <returns>User with hashed password</returns>
+        public async Task<User?> GetUserByIdAsync(int user_id)
+        {
+            var user = await _context.users.Where(c => c.id == user_id).FirstOrDefaultAsync();
+            if (user == null) return null;
+            return user;
+        }
     }
 }

@@ -14,6 +14,7 @@ namespace KattiCDN.Services
         /// </summary>
         public DbSet<User> users { get; set; }
         public DbSet<UploadedData> uploadeddata { get; set; }
+        public DbSet<RefreshToken> refreshtokens { get; set; }
 
         private readonly IConfiguration Configuration;
 
