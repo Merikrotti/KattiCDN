@@ -44,6 +44,15 @@ create table users (
 	password VARCHAR(255) NOT NULL
 )
 
+create table refreshtokens (
+	id serial PRIMARY KEY,
+	user_id INT,
+	token VARCHAR(255) UNIQUE NOT NULL,
+	CONSTRAINT fk_refreshtokens
+		FOREIGN KEY(user_id)
+			REFERENCES users(id)
+);
+
 create table uploadeddata (
 	id serial PRIMARY KEY,
 	user_id INT,

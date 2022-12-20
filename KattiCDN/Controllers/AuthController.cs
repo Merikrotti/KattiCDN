@@ -4,6 +4,8 @@ using KattiCDN.Services.RegisterService;
 using KattiCDN.Services;
 using Microsoft.AspNetCore.Mvc;
 using KattiCDN.Services.PasswordService;
+using Microsoft.AspNetCore.Authorization;
+using KattiCDN.Services.TokenService;
 
 namespace KattiCDN.Controllers
 {
@@ -14,13 +16,15 @@ namespace KattiCDN.Controllers
         private readonly IPasswordHasher _pwhasher;
         private readonly ILoginDb _logindb;
         private readonly IRegisterService _registerService;
+        private readonly ITokenService _tokenService;
 
-        public AuthController(CdnDatabase context, IPasswordHasher pwhasher, ILoginDb logindb, IRegisterService registerService)
+        public AuthController(CdnDatabase context, IPasswordHasher pwhasher, ILoginDb logindb, IRegisterService registerService, ITokenService tokenService)
         {
             _context = context;
             _pwhasher = pwhasher;
             _logindb = logindb;
             _registerService = registerService;
+            _tokenService = tokenService;
         }
 
         [HttpPost("register")]
@@ -66,7 +70,7 @@ namespace KattiCDN.Controllers
 
             var user = await _logindb.GetUserAsync(request.Username);
 
-            if (user?.password == null)
+            if (user?.password == null || user?.username == null)
                 return Unauthorized();
 
             bool correctPassword = _pwhasher.VerifyPassword(request.Password, user.password);
@@ -74,7 +78,16 @@ namespace KattiCDN.Controllers
             if (!correctPassword)
                 return Unauthorized();
 
-            return Ok(new { user = user });
+            var accesstoken = _tokenService.CreateAccessToken(user.username, user.id);
+
+            return Ok(new { accessToken = accesstoken });
+        }
+
+        [Authorize]
+        [HttpPost("authtest")]
+        public IActionResult Test()
+        {
+            return Ok();
         }
     }
 }
