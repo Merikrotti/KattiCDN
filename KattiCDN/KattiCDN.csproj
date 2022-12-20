@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Services\ImageService\" />
+    <Folder Include="Services\TokenService\" />
   </ItemGroup>
 
 </Project>

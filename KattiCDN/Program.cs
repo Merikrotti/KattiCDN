@@ -1,6 +1,7 @@
 using KattiCDN.Services;
 using KattiCDN.Services.LoginService;
 using KattiCDN.Services.PasswordService;
+using KattiCDN.Services.RegisterService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,10 +13,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<CdnDatabase>();
 
-//Singletons (services)
+//Services
 builder.Services.AddScoped<ILoginDb, LoginDb>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-
+builder.Services.AddScoped<IRegisterService, RegisterService>();
 
 var app = builder.Build();
 
